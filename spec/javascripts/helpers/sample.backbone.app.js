@@ -127,6 +127,33 @@ AllBindingAttributesView = Backbone.View.extend({
     }
 });
 
+MergeBindingAttributesView = Backbone.View.extend({
+    render:function () {
+        var html = $("\
+          <input type='text' id='v_name' name='name'> \
+          <select id='v_education' name='education'> \
+            <option value='none'>none</option> \
+            <option value='grade_school'>i dun learned at grade skool</option> \
+            <option value='high school'>high school</option> \
+            <option value='college'>college</option> \
+            <option value='graduate'>graduate</option> \
+          </select> \
+          <input type='radio' id='graduated_yes' name='graduated_yes' class='graduated' value='yes'>\
+          <input type='radio' id='graduated_no' name='graduated_no' class='graduated' value='no'>\
+          <input type='radio' id='graduated_maybe' name='graduated_maybe' class='graduated' value='maybe'>\
+          <input type='checkbox' id='v_drivers_license' name='drivers_license' value='yes'>\
+          <textarea id='v_bio' class='bio'></textarea>\
+        ");
+        this.$el.append(html);
+
+        var binder = new Backbone.ModelBinder();
+        var bindings = {
+            name: { selector: '[name=name]', converter: function(dir,val){ return val + " dude"; } }
+        };
+        binder.bind(this.model, this.$el, bindings, true);
+    }
+});
+
 GlobalAllBindingAttributesView = Backbone.View.extend({
     render:function () {
         var html = $("\

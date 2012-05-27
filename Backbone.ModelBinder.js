@@ -28,7 +28,7 @@
 
     _.extend(Backbone.ModelBinder.prototype, {
 
-        bind:function (model, rootEl, attributeBindings) {
+        bind:function (model, rootEl, attributeBindings, extendDefaultBindings) {
             this.unbind();
 
             this._model = model;
@@ -37,15 +37,19 @@
             if (!this._model) throw 'model must be specified';
             if (!this._rootEl) throw 'rootEl must be specified';
 
-            if(attributeBindings){
-                // Create a deep clone of the attribute bindings
-                this._attributeBindings = $.extend(true, {}, attributeBindings);
-
-                this._initializeAttributeBindings();
-                this._initializeElBindings();
+            if ((extendDefaultBindings != null && extendDefaultBindings) || attributeBindings == null){
+              this._initializeDefaultBindings();
             }
             else {
-                this._initializeDefaultBindings();
+              this._attributeBindings = {}
+            }
+												
+            if(attributeBindings){
+                // Create a deep clone of the attribute bindings
+                this._attributeBindings = $.extend(true, this._attributeBindings, attributeBindings);
+								
+                this._initializeAttributeBindings();
+                this._initializeElBindings();                
             }
 
             this._bindModelToView();
@@ -112,6 +116,9 @@
                 else{
                     this._attributeBindings[name].elementBindings.push({attributeBinding: this._attributeBindings[name], boundEls: [namedEl]});
                 }
+                
+                // I needed to add this in order to make _initializeElBindings work, I am not fully aware why
+                this._attributeBindings[name].selector = "[name=" + name + "]";
             }
         },
 
@@ -119,7 +126,7 @@
             var bindingKey, attributeBinding, bindingCount, elementBinding, foundEls, elCount, el;
             for (bindingKey in this._attributeBindings) {
                 attributeBinding = this._attributeBindings[bindingKey];
-
+            		
                 for (bindingCount = 0; bindingCount < attributeBinding.elementBindings.length; bindingCount++) {
                     elementBinding = attributeBinding.elementBindings[bindingCount];
                     if (elementBinding.selector === '') {
@@ -128,7 +135,7 @@
                     else {
                         foundEls = $(elementBinding.selector, this._rootEl);
                     }
-
+                    
                     if (foundEls.length === 0) {
                         throw 'Bad binding found. No elements returned for binding selector ' + elementBinding.selector;
                     }
